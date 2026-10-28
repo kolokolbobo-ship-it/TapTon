@@ -76,18 +76,18 @@ Development of TapTone happens on Windows; until a Linux machine runs `makepkg`/
 
 ## Arch / AUR (`arch/PKGBUILD`)
 
-`makepkg` is not available in the development environment, so the checksums and the `.SRCINFO`
-have **not** been generated — that is expected and normal only after a release exists.
-Before publishing to the AUR:
+The PKGBUILD is AUR-ready: it sources the release tag directly from GitHub
+(`v1.0.0`, sha256 verified over the generated tag archive) and installs the
+binary, license, icon, desktop entry and the virtual-microphone cable files.
+It contains no driver steps and needs no root at build time.
 
-1. Push this repository to GitHub (owner decides the account/URL) and create tag `v0.1.0`
-   with the sources matching this tree.
-2. Fill in `source`, `url` placeholders (`GITHUB_OWNER`) in the PKGBUILD.
-3. Generate checksums: `updpkgsums` (or `makepkg -g`), then `makepkg -f` and try the binary.
-4. `makepkg --printsrcinfo > .SRCINFO` and commit both files to the AUR repository with an
-   AUR account; choose the package name after checking namespace conflicts
-   (`https://aur.archlinux.org/packages?K=taptone`).
-5. `namcap PKGBUILD *.pac*` when available.
+To publish to the AUR (name `taptone` is free as of 2026-10-28):
+
+1. Register at `aur.archlinux.org` and add an SSH public key to the account.
+2. `git clone ssh://aur@aur.archlinux.org/taptone.git`
+3. Copy `packaging/arch/PKGBUILD` and `packaging/arch/.SRCINFO` into the clone.
+4. Commit and push (optionally run `namcap PKGBUILD` first if available).
+5. Update the `Maintainer` line with the real maintainer name/e-mail.
 
 The PKGBUILD builds from the released source tarball with `cargo` and installs the binary, the
 license, an icon and a desktop entry. It contains **no** driver steps, needs no root at build

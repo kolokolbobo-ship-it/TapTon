@@ -7,8 +7,8 @@ Version:        1.0.0
 Release:        5%{?dist}
 Summary:        Free soundboard for voice chats: sound library, hotkeys, dual audio output
 License:        MIT
-# TODO(release): replace with the real project URL, e.g.
-# URL:            https://github.com/OWNER/taptone
+# Release tag: https://github.com/kolokolbobo-ship-it/TapTon/releases/tag/v1.0.0
+URL:            https://github.com/kolokolbobo-ship-it/TapTon
 # Source0:        %{url}/archive/refs/tags/v%{version}.tar.gz#/TapTon-%{version}.tar.gz
 Source0:        TapTon-%{version}.tar.gz
 # Improved desktop entry (adds %u and soundpad:// scheme handlers); the

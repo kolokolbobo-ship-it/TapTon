@@ -1,22 +1,15 @@
 # Maintainer: TapTone maintainers <taptone@localhost>
 # Contributor: local packaging, 2026-10-28
 #
-# This PKGBUILD was executed against the released TapTon-1.0.0 source archive
-# (sha256 below). Two variants of `source`:
-#   * local file (default): keep TapTon-1.0.0.tar.gz next to this PKGBUILD;
-#   * AUR/GitHub (TODO): once the repository URL is known, replace with
-#       source=("taptone-1.0.0.tar.gz::$url/archive/refs/tags/v1.0.0.tar.gz" ...)
-#     (the sha256 stays the same — it is over the archive bytes).
-#
-# Note: upstream still ships the pre-integration desktop entry in the
-# tarball, so the improved one (adds %u and soundpad:// scheme handlers) is
-# supplied as a second source file. Once the fixed desktop entry is in the
-# tarball, drop the second source and install packaging/linux/taptone.desktop
-# from the tree instead.
+# AUR-ready PKGBUILD: sources the release tag directly from GitHub
+# (tag v1.0.0, commit 966a29f, CI-verified on Ubuntu and Windows).
+# The tarball ships the improved desktop entry (soundpad:// handlers),
+# so no second source file is needed.
 
 pkgname=taptone
 pkgver=1.0.0
 pkgrel=5
+url="https://github.com/kolokolbobo-ship-it/TapTon"
 pkgdesc="Free soundboard for voice chats: sound library, hotkeys, dual audio output"
 arch=("x86_64")
 license=("MIT")
@@ -27,14 +20,9 @@ license=("MIT")
 depends=("alsa-lib" "pipewire-alsa" "libxkbcommon" "libxkbcommon-x11" "wayland" "libgl")
 makedepends=("cargo" "pkgconf")
 checkdepends=()
-source=("TapTon-$pkgver.tar.gz"
-        "taptone.desktop")
-# sha256 computed over the released TapTon-1.0.0.tar.gz archive bytes
-# (1.0.0-4 adds the named virtual microphone "TapTone Microphone (Virtual)";
-# 1.0.0-3 provisioned the virtual cable system-wide; 1.0.0-2 carried the
-# Linux routing fix on top of the original archive):
-sha256sums=("2fa8fa84bef5c652db0a9bc57a099ec21c1e77c8e2ab8a61013ee1dd794d4bc2"
-            "SKIP")  # TODO(AUR): replace with `updpkgsums` output for taptone.desktop
+source=("taptone-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+# sha256 over the GitHub tag archive (v1.0.0):
+sha256sums=("b509b6924d09ffe03462ace215b935bc4676b8be3de68906c540ba6c10dde63c")
 # /etc/asound.conf is kept across upgrades and only replaced with user consent.
 backup=("etc/asound.conf")
 noextract=()
@@ -65,7 +53,7 @@ package() {
     install -Dm0644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
     install -Dm0644 CHANGELOG.md "$pkgdir/usr/share/doc/$pkgname/CHANGELOG.md"
     install -Dm0644 assets/icon.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/taptone.png"
-    install -Dm0644 "$srcdir/taptone.desktop" "$pkgdir/usr/share/applications/taptone.desktop"
+    install -Dm0644 packaging/linux/taptone.desktop "$pkgdir/usr/share/applications/taptone.desktop"
     # Virtual microphone cable (system-wide, survives reboots; see docs/AUDIO_ROUTING.md)
     install -Dm0644 packaging/pipewire/90-taptone-cable.conf "$pkgdir/usr/share/pipewire/pipewire.conf.d/90-taptone-cable.conf"
     install -Dm0644 packaging/alsa/asound.conf "$pkgdir/etc/asound.conf"
