@@ -1,0 +1,72 @@
+name: Release builds
+
+# Builds the release artifacts a maintainer can attach to a GitHub Release.
+# This workflow NEVER publishes: creating or publishing the release itself is a manual
+# action of the project owner (see packaging/README.md).
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows release build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: windows-release
+      - name: cargo build --release
+        run: cargo build --release --locked
+      - name: Stage release files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item target/release/taptone.exe dist/taptone.exe
+          Copy-Item README.md dist/ -ErrorAction SilentlyContinue
+          Copy-Item LICENSE dist/ -ErrorAction SilentlyContinue
+          Copy-Item CHANGELOG.md dist/ -ErrorAction SilentlyContinue
+      - uses: actions/upload-artifact@v4
+        with:
+          name: taptone-windows-x64
+          path: dist/*
+          if-no-files-found: error
+
+  linux:
+    name: Linux binary build (not a package)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libwayland-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: linux-release
+      - name: cargo build --release
+        run: cargo build --release --locked
+      - name: Stage release files
+        run: |
+          mkdir -p dist
+          cp target/release/taptone dist/taptone
+          cp README.md LICENSE CHANGELOG.md dist/
+          tar -czf taptone-linux-x64.tar.gz -C dist .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: taptone-linux-x64
+          path: taptone-linux-x64.tar.gz
+          if-no-files-found: error
+
+  # Note: this binary needs the desktop libraries on the target system
+  # (libasound2, libxkbcommon-x11 etc.); distro packages (packaging/) are the
+  # supported installation path, not this artifact.

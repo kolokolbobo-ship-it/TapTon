@@ -1,0 +1,76 @@
+# Maintainer: TapTone maintainers <taptone@localhost>
+# Contributor: local packaging, 2026-10-28
+#
+# This PKGBUILD was executed against the released TapTon-1.0.0 source archive
+# (sha256 below). Two variants of `source`:
+#   * local file (default): keep TapTon-1.0.0.tar.gz next to this PKGBUILD;
+#   * AUR/GitHub (TODO): once the repository URL is known, replace with
+#       source=("taptone-1.0.0.tar.gz::$url/archive/refs/tags/v1.0.0.tar.gz" ...)
+#     (the sha256 stays the same — it is over the archive bytes).
+#
+# Note: upstream still ships the pre-integration desktop entry in the
+# tarball, so the improved one (adds %u and soundpad:// scheme handlers) is
+# supplied as a second source file. Once the fixed desktop entry is in the
+# tarball, drop the second source and install packaging/linux/taptone.desktop
+# from the tree instead.
+
+pkgname=taptone
+pkgver=1.0.0
+pkgrel=5
+pkgdesc="Free soundboard for voice chats: sound library, hotkeys, dual audio output"
+arch=("x86_64")
+license=("MIT")
+# Runtime: ALSA (linked); X11/Wayland/GL/xkbcommon are dlopen()ed at runtime
+# by winit/glutin. EGL comes with mesa, preinstalled on any desktop setup.
+# pipewire-alsa provides the ALSA<->PipeWire plugin used by the "taptone_route"
+# pcm this package installs to /etc/asound.conf (the virtual microphone cable).
+depends=("alsa-lib" "pipewire-alsa" "libxkbcommon" "libxkbcommon-x11" "wayland" "libgl")
+makedepends=("cargo" "pkgconf")
+checkdepends=()
+source=("TapTon-$pkgver.tar.gz"
+        "taptone.desktop")
+# sha256 computed over the released TapTon-1.0.0.tar.gz archive bytes
+# (1.0.0-4 adds the named virtual microphone "TapTone Microphone (Virtual)";
+# 1.0.0-3 provisioned the virtual cable system-wide; 1.0.0-2 carried the
+# Linux routing fix on top of the original archive):
+sha256sums=("2fa8fa84bef5c652db0a9bc57a099ec21c1e77c8e2ab8a61013ee1dd794d4bc2"
+            "SKIP")  # TODO(AUR): replace with `updpkgsums` output for taptone.desktop
+# /etc/asound.conf is kept across upgrades and only replaced with user consent.
+backup=("etc/asound.conf")
+noextract=()
+validpgpkeys=()
+
+prepare() {
+    cd "TapTon-$pkgver"
+    # Crates come from crates.io per Cargo.lock (reproducible, --locked).
+    cargo fetch --locked
+}
+
+build() {
+    cd "TapTon-$pkgver"
+    export CARGO_TARGET_DIR="target"
+    cargo build --release --locked
+}
+
+check() {
+    cd "TapTon-$pkgver"
+    # GUI/audio tests are written to pass without a display or audio device.
+    cargo test --locked --all-targets
+}
+
+package() {
+    cd "TapTon-$pkgver"
+    install -Dm0755 "target/release/taptone" "$pkgdir/usr/bin/taptone"
+    install -Dm0644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm0644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm0644 CHANGELOG.md "$pkgdir/usr/share/doc/$pkgname/CHANGELOG.md"
+    install -Dm0644 assets/icon.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/taptone.png"
+    install -Dm0644 "$srcdir/taptone.desktop" "$pkgdir/usr/share/applications/taptone.desktop"
+    # Virtual microphone cable (system-wide, survives reboots; see docs/AUDIO_ROUTING.md)
+    install -Dm0644 packaging/pipewire/90-taptone-cable.conf "$pkgdir/usr/share/pipewire/pipewire.conf.d/90-taptone-cable.conf"
+    install -Dm0644 packaging/alsa/asound.conf "$pkgdir/etc/asound.conf"
+    # Fixed /usr/lib/taptone path: the pipewire.conf.d file starts the mic
+    # helper from there via context.exec.
+    install -Dm0755 packaging/linux/migrate-cable.sh "$pkgdir/usr/lib/taptone/migrate-cable.sh"
+    install -Dm0755 packaging/linux/virtual-mic.sh "$pkgdir/usr/lib/taptone/virtual-mic.sh"
+}

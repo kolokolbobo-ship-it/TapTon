@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=TapTone
+GenericName=Soundboard
+GenericName[ru]=Саундборд
+Comment=Play sound effects into voice chats and locally
+Comment[ru]=Звуки в голосовые чаты и локально
+Exec=taptone %u
+Icon=taptone
+Terminal=false
+Categories=AudioVideo;Audio;Utility;
+Keywords=soundboard;sounds;hotkeys;voice;
+MimeType=x-scheme-handler/soundpad;x-scheme-handler/taptone;
+StartupNotify=false

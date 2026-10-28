@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  checks:
+    name: fmt / clippy / test (${{ matrix.os }})
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux system deps (audio + GUI)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libx11-dev \
+            libwayland-dev
+
+      # rustfmt only needs the stable toolchain; install separately so a clippy/toolchain
+      # problem below cannot leave formatting unreported.
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}-ci
+
+      - name: cargo fmt --check
+        run: cargo fmt --all --check
+
+      # Tests do not need audio devices or a display: device enumeration degrades to
+      # empty lists by design, GUI code is not driven in tests.
+      - name: cargo test
+        run: cargo test --all-targets --locked
+
+      - name: cargo clippy
+        # Reasonable strictness: deny warnings by default, keep pedantic/nursery off.
+        run: cargo clippy --all-targets --locked -D warnings

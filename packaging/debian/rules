@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+# Output binary from cargo; debhelper's dh-cargo integration is not used at this stage
+# (no vendored Debian archive exists yet). The maintainer may switch to
+# `dh_auto_configure -- ... cargo vendors' later; keep it simple and explicit.
+%:
+	dh $@
+
+override_dh_auto_build:
+	cargo build --release --locked
+
+override_dh_auto_test:
+	cargo test --locked --all-targets
+
+override_dh_auto_install:
+	install -Dm0755 target/release/taptone debian/taptone/usr/bin/taptone
+	install -Dm0644 LICENSE debian/taptone/usr/share/doc/taptone/copyright
+	install -Dm0644 assets/icon.png debian/taptone/usr/share/icons/hicolor/256x256/apps/taptone.png
+	install -Dm0644 packaging/linux/taptone.desktop debian/taptone/usr/share/applications/taptone.desktop

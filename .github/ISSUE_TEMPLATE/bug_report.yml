@@ -1,0 +1,47 @@
+name: Bug report
+description: Something in TapTone does not work as described
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected instead. Include the exact wording of any error message shown (no screenshots needed).
+      placeholder: Playing sound X on route Y does nothing; TapTone says "…".
+    validations:
+      required: true
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Settings → …
+        2. Press …
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 10
+        - Windows 11
+        - Linux (X11)
+        - Linux (Wayland)
+    validations:
+      required: true
+  - type: textarea
+    id: audio-setup
+    attributes:
+      label: Audio setup
+      description: Which virtual cable (if any), microphones, and which device is selected in your voice chat?
+      placeholder: VB-CABLE installed, "CABLE Input" selected as microphone route, Discord uses "CABLE Output"…
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: TapTone version / build
+      placeholder: v0.1.0 release build / self-built from commit …
+    validations:
+      required: true

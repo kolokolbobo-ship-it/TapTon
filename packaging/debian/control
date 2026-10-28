@@ -1,0 +1,32 @@
+Source: taptone
+Section: sound
+Priority: optional
+Maintainer: TapTone maintainers <TODO:email@domain>
+Rules-Requires-Root: no
+Build-Depends: debhelper-compat (= 13),
+               cargo,
+               rustc,
+               libasound2-dev,
+               libxkbcommon-dev,
+               libxkbcommon-x11-dev,
+               libx11-dev,
+               libwayland-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/GITHUB_OWNER/taptone
+Vcs-Browser: https://github.com/GITHUB_OWNER/taptone
+Vcs-Git: https://github.com/GITHUB_OWNER/taptone.git
+
+Package: taptone
+Architecture: any
+Depends: ${misc:Depends}
+Description: Free soundboard for voice chats
+ TapTone plays sound effects on two outputs at once: locally (headphones) and into a
+ "microphone route" that voice chats (Discord, games) use as their microphone input.
+ Features a sound library (search, favourites, duplicates detection), global hotkeys,
+ a green/black interface and soundpad://-style link downloads.
+ .
+ As upstream this package ships no audio driver or system audio component: route sounds
+ to voice chats with your desktop audio server's virtual devices (PipeWire/PulseAudio),
+ exactly like any other desktop application.
+ .
+ Status: PREPARED, NOT BUILT - packaging/README.md explains the verification steps.

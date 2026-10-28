@@ -1,0 +1,22 @@
+/target
+*.tmp
+*.part
+*.corrupt-*
+*.log
+/backups
+# Per-distro build attempts (packaging/README.md)
+/packaging/arch/pkg
+/packaging/arch/src
+/packaging/arch/*.tar.gz
+/packaging/arch/*.srcinfo
+/appimagetool*
+/TapTone.AppDir
+*.AppImage
+build/ 
+build/ 
+target/ 
+build/ 
+target/ 
+
+# Built packages (go to GitHub Releases, not the repo)
+/dist
