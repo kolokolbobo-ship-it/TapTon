@@ -57,4 +57,4 @@ jobs:
 
       - name: cargo clippy
         # Reasonable strictness: deny warnings by default, keep pedantic/nursery off.
-        run: cargo clippy --all-targets --locked -D warnings
+        run: cargo clippy --all-targets --locked -- -D warnings
